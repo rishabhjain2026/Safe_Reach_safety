@@ -1,0 +1,15 @@
+backend/
+│
+├── src/
+│   ├── controllers/
+│   ├── routes/
+│   ├── services/
+│   ├── middleware/
+│   ├── utils/
+│   ├── config/
+│   └── server.js
+│
+├── .env
+├── .gitignore
+├── package.json
+└── package-lock.json
