@@ -1,0 +1,6 @@
+npx prisma generate   
+npx prisma migrate dev --name init 
+use the se two command before runnnig the app
+
+
+
