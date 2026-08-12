@@ -23,6 +23,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   trustedContacts TrustedContact[]
+  places Place[]
 }
 
 
@@ -37,6 +38,22 @@ model TrustedContact {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+
+model Place {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  address   String?
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
