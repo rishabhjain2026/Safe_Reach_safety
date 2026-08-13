@@ -23,6 +23,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   trustedContacts TrustedContact[]
+  places Place[]
+  journeys Journey[]
 }
 
 
@@ -41,4 +43,59 @@ model TrustedContact {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+
+model Place {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  address   String?
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  originJourneys      Journey[] @relation("JourneyOrigin")
+  destinationJourneys Journey[] @relation("JourneyDestination")
+
+  @@index([userId])
+}
+
+model Journey {
+  id                Int       @id @default(autoincrement())
+  userId            Int
+  originId          Int
+  destinationId     Int
+
+  plannedDeparture  DateTime
+  expectedDuration  Int
+  expectedArrival   DateTime?
+
+  actualDeparture   DateTime?
+  actualArrival     DateTime?
+
+  status            JourneyStatus @default(PLANNED)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user              User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  origin            Place @relation("JourneyOrigin", fields: [originId], references: [id])
+  destination       Place @relation("JourneyDestination", fields: [destinationId], references: [id])
+
+  @@index([userId])
+  @@index([originId])
+  @@index([destinationId])
+}
+
+enum JourneyStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  MISSED
 }
