@@ -90,6 +90,8 @@ model Journey {
   @@index([userId])
   @@index([originId])
   @@index([destinationId])
+
+  locations JourneyLocation[]
 }
 
 enum JourneyStatus {
@@ -98,4 +100,26 @@ enum JourneyStatus {
   COMPLETED
   CANCELLED
   MISSED
+}
+
+
+
+model JourneyLocation {
+  id        Int      @id @default(autoincrement())
+
+  journeyId Int
+  journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+
+  latitude  Float
+  longitude Float
+
+  accuracy  Float?
+  speed     Float?
+
+  recordedAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([journeyId])
+  @@index([recordedAt])
 }
