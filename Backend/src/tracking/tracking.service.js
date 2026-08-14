@@ -1,5 +1,7 @@
 const prisma = require("../config/prisma");
 
+const {analyzeLocation} = require("../journey-intelligence/journey-intelligence.service");
+
 const processLocation = async (userId, locationData) => {
 
     const journey = await prisma.journey.findFirst({
@@ -33,9 +35,18 @@ const processLocation = async (userId, locationData) => {
         }
     });
 
+    const analysis = await analyzeLocation(
+    journey.id,
+        {
+            latitude: Number(locationData.latitude),
+            longitude: Number(locationData.longitude)
+        }
+    );
+
     return {
         journey,
-        location
+        location,
+        analysis
     };
 };
 
