@@ -1,0 +1,134 @@
+                    Location Update
+                           ↓
+                  Distance from Origin
+                           ↓
+                    Movement detected?
+                       /         \
+                     NO           YES
+                     ↓             ↓
+                  Continue     Moved away
+                                from origin?
+                                  /    \
+                                NO      YES
+                                ↓        ↓
+                             Continue   Check
+                                        direction
+                                           ↓
+                                    Moving toward
+                                    destination?
+                                      /       \
+                                    NO         YES
+                                    ↓           ↓
+                                 Continue    Departure
+                                             candidate
+                                                 ↓
+                                         Confirm with
+                                        multiple points
+                                                 ↓
+                                         🚀 DEPARTED
+                                                 ↓
+                                              ACTIVE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    LOCATION
+                       ↓
+              ┌────────┴────────┐
+              ↓                 ↓
+          Movement?          Distance
+              ↓                 ↓
+             YES          From destination
+              ↓                 ↓
+              └────────┬────────┘
+                       ↓
+                 Direction?
+                       ↓
+              Moving toward?
+                  /       \
+                YES        NO
+                 ↓          ↓
+             Continue     Ignore
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  Journey PLANNED
+                         ↓
+                   Location update
+                         ↓
+                 Distance from origin
+                         ↓
+                  Movement detected?
+                    /           \
+                  NO             YES
+                  ↓               ↓
+               Ignore       Moving away from
+                              origin?
+                              /      \
+                            NO        YES
+                            ↓          ↓
+                         Ignore     Direction
+                                      ↓
+                              Toward destination?
+                                /          \
+                              NO            YES
+                              ↓              ↓
+                           Ignore       Confirmation 1
+                                             ↓
+                                       Confirmation 2
+                                             ↓
+                                       Confirmation 3
+                                             ↓
+                                  🚀 DEPARTURE DETECTED
+                                             ↓
+                                      Journey ACTIVE
+
+
+
+
+
+
+
+
+
+
+
+
+
