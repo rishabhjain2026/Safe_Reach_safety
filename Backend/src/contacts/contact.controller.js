@@ -8,6 +8,7 @@ const createContact = async (req, res) => {
             userId: req.userId,
             name: req.body.name,
             phone: req.body.phone,
+            email:req.body.email,
             relationship: req.body.relationship,
             priority: req.body.priority
         });

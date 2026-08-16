@@ -1,0 +1,57 @@
+🎯 What we've achieved
+
+After this, SafeReach knows:
+
+User
+ ↓
+Trusted Contacts
+ ↓
+Active contacts
+ ↓
+Priority
+
+So now our architecture looks like:
+
+                     JOURNEY
+                        │
+                        ↓
+                 Delay detected
+                        │
+                        ↓
+                 Notification
+                        │
+                        ↓
+              Notification Service
+                        │
+                        ↓
+              Recipient Service
+                        │
+                        ↓
+              Trusted Contacts
+                        │
+              ┌─────────┼─────────┐
+              ↓         ↓         ↓
+           Mother     Father    Friend
+           P:1        P:2       P:3
+Do these now
+Create recipient.service.js
+Create notification.controller.js
+Create notification.routes.js
+Register the route in app.js/server.js
+Run the backend
+Test:
+GET /api/notifications/recipients/1
+
+Once this works, don't move to SMS yet.
+
+The next step will be to connect:
+
+DELAY_DETECTED
+      ↓
+Notification
+      ↓
+Trusted Contact
+      ↓
+Recipient phone number
+
+Then we'll build the SMS delivery service separately.
