@@ -124,6 +124,21 @@
 
 
 
+geo.service.js
+        ↓
+Geographical calculations
+
+journey-intelligence.service.js
+        ↓
+Movement + direction analysis
+
+departure.service.js
+        ↓
+Determine whether journey has started
+
+tracking.service.js
+        ↓
+Receive and store location
 
 
 
@@ -132,3 +147,30 @@
 
 
 
+
+
+                 USER
+                   ↓
+              GPS Location
+                   ↓
+            Tracking API
+                   ↓
+          ┌────────┴────────┐
+          ↓                 ↓
+       Movement          Location
+       Analysis           Analysis
+          ↓                 ↓
+          └────────┬────────┘
+                   ↓
+             Direction
+              Analysis
+                   ↓
+          Departure Detector
+                   ↓
+        3 consecutive signals
+                   ↓
+           🚀 DEPARTURE
+                   ↓
+             Journey ACTIVE
+                   ↓
+        actualDeparture saved

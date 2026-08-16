@@ -1,0 +1,30 @@
+Now we have to update the Journey
+
+If departure has not been confirmed:
+
+PLANNED
+   ↓
+Still PLANNED
+
+If confirmation count increases:
+
+PLANNED
+   ↓
+departureConfirmations = 1
+
+then:
+
+departureConfirmations = 2
+
+then:
+
+departureConfirmations = 3
+
+At 3:
+
+🚀 DEPARTURE DETECTED
+
+Then we update:
+
+status = ACTIVE
+actualDeparture = current location timestamp

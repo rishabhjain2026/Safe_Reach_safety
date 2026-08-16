@@ -4,15 +4,29 @@ const {analyzeLocation,analyzeMovement,analyzeDirection} = require("../journey-i
 
 const {calculateDistance} = require("../journey-intelligence/geo.service");
 
+const {evaluateDeparture} = require("../journey-intelligence/departure.service");
+
+const {evaluateArrival} = require("../journey-intelligence/arrival.service");
+
+const {calculateETA} = require("../journey-intelligence/eta.service");
+
+const {analyzeDelay} = require("../journey-intelligence/delay.service");
+
 const processLocation = async (userId, locationData) => {
 
     const journey = await prisma.journey.findFirst({
         where: {
             userId,
-            status: "PLANNED"
+            status: {
+                in: ["PLANNED", "ACTIVE"]
+            }
         },
         orderBy: {
             plannedDeparture: "asc"
+        },
+
+        orderBy: {
+        createdAt: "desc"
         },
         include: {
             origin: true,
@@ -82,6 +96,23 @@ console.log("PREVIOUS LOCATION:", previousLocation);
     console.log("journey_destination_latitude",journey.destination.latitude)
 
 
+    let etaAnalysis = null;
+
+    if (journey.status === "ACTIVE") {
+
+        etaAnalysis = calculateETA({
+            distanceRemaining:
+                analysis.distanceFromDestination,
+
+            currentSpeed:
+                movementAnalysis.calculatedSpeed,
+
+            currentTime:
+                location.recordedAt
+        });
+    }
+
+
     let previousDistanceFromDestination = null;
 
     if (previousLocation) {
@@ -96,12 +127,137 @@ console.log("PREVIOUS LOCATION:", previousLocation);
 
     const directionAnalysis =analyzeDirection(previousDistanceFromDestination,analysis.distanceFromDestination);
 
+    let arrivalAnalysis = null;
+
+    if (journey.status === "ACTIVE") {
+        arrivalAnalysis = evaluateArrival({
+            distanceFromDestination:
+                analysis.distanceFromDestination,
+
+            consecutiveConfirmations:
+                journey.arrivalConfirmations
+        });
+    }
+
+    const departureAnalysis =
+    evaluateDeparture({
+        movementDetected:
+            movementAnalysis.movementDetected,
+
+        movingTowardDestination:
+            directionAnalysis.movingTowardDestination,
+
+        consecutiveConfirmations:
+            journey.departureConfirmations
+    });
+
+
+    let delayAnalysis = null;
+
+    if (
+        journey.status === "ACTIVE" &&
+        etaAnalysis &&
+        etaAnalysis.eta
+    ) {
+
+        delayAnalysis = analyzeDelay({
+            expectedArrival:
+                journey.expectedArrival,
+
+            estimatedArrival:
+                etaAnalysis.eta
+        });
+    }
+
+
+
+
+
+    let updatedJourney = journey;
+
+    if (departureAnalysis.departureDetected) {
+
+        updatedJourney =
+            await prisma.journey.update({
+                where: {
+                    id: journey.id
+                },
+                data: {
+                    status: "ACTIVE",
+
+                    actualDeparture:
+                        location.recordedAt,
+
+                    departureConfirmations:
+                        departureAnalysis.consecutiveConfirmations
+                }
+            });
+
+    } else {
+
+        updatedJourney =
+            await prisma.journey.update({
+                where: {
+                    id: journey.id
+                },
+                data: {
+                    departureConfirmations:departureAnalysis.consecutiveConfirmations
+                }
+            });
+    }
+
+
+    if (arrivalAnalysis) {
+
+    if (arrivalAnalysis.arrivalDetected) {
+
+        updatedJourney =
+            await prisma.journey.update({
+                where: {
+                    id: journey.id
+                },
+
+                data: {
+                    status: "COMPLETED",
+
+                    actualArrival:
+                        location.recordedAt,
+
+                    arrivalConfirmations:
+                        arrivalAnalysis.consecutiveConfirmations
+                }
+            });
+
+    } else {
+
+        updatedJourney =
+            await prisma.journey.update({
+                where: {
+                    id: journey.id
+                },
+
+                data: {
+                    arrivalConfirmations:
+                        arrivalAnalysis.consecutiveConfirmations
+                }
+            });
+    }
+
+
+
+    
+}
+
     return {
-        journey,
+        journey:updatedJourney,
         location,
         analysis,
         movementAnalysis,
-        directionAnalysis
+        directionAnalysis,
+        departureAnalysis,
+        arrivalAnalysis,
+        etaAnalysis,
+        delayAnalysis
     };
 };
 
