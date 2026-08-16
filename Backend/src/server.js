@@ -6,6 +6,7 @@ const contactRoutes = require("./contacts/contact.routes");
 const placeRoutes = require("./places/place.routes");
 const journeyRoutes = require("./journeys/journey.routes");
 const trackingRoutes = require("./tracking/tracking.routes");
+const notificationRoutes=require("./notifications/notification.routes")
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api/contacts", contactRoutes);
 app.use("/api/places", placeRoutes);
 app.use("/api/journeys", journeyRoutes);
 app.use("/api/tracking", trackingRoutes);
+app.use("/api/notifications",notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 

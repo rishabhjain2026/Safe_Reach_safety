@@ -12,6 +12,8 @@ const {calculateETA} = require("../journey-intelligence/eta.service");
 
 const {analyzeDelay} = require("../journey-intelligence/delay.service");
 
+const {createNotification} = require("../notifications/notification.service");
+
 const processLocation = async (userId, locationData) => {
 
     const journey = await prisma.journey.findFirst({
@@ -168,6 +170,46 @@ console.log("PREVIOUS LOCATION:", previousLocation);
                 etaAnalysis.eta
         });
     }
+
+
+    //notification to send if the delay is detected but it will send the notification in every 10 second that we dont as it will send many messaga to the family menber and thus increase the cost to prevent that we will make sure thenotificatiob is only send if previously messgae isi not sent 
+//     if (
+//     delayAnalysis &&
+//     delayAnalysis.delayDetected
+// ) {
+//     await createNotification({
+//         userId: journey.userId,
+//         journeyId: journey.id,
+//         type: "DELAY_DETECTED",
+//         channel: "SMS",
+//         message: `Your journey is delayed by approximately ${delayAnalysis.delayMinutes} minutes.`
+//     });
+// }
+
+
+    if (
+        delayAnalysis &&
+        delayAnalysis.delayDetected
+    ) {
+    const existingNotification =
+        await prisma.notification.findFirst({
+            where: {
+                journeyId: journey.id,
+                type: "DELAY_DETECTED"
+            }
+        });
+
+    if (!existingNotification) {
+
+        await createNotification({
+            userId: journey.userId,
+            journeyId: journey.id,
+            type: "DELAY_DETECTED",
+            channel: "SMS",
+            message: `Your journey is delayed by approximately ${delayAnalysis.delayMinutes} minutes.`
+        });
+    }
+}
 
 
 

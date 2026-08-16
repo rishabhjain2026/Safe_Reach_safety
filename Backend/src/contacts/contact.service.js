@@ -4,6 +4,7 @@ const createContact = async ({
     userId,
     name,
     phone,
+    email,
     relationship,
     priority
 }) => {
@@ -13,10 +14,13 @@ const createContact = async ({
             userId,
             name,
             phone,
+            email,
             relationship,
             priority: priority || 1
         }
     });
+
+    console.log("contact",contact)
 
     return contact;
 };

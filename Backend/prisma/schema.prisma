@@ -25,6 +25,7 @@ model User {
   trustedContacts TrustedContact[]
   places Place[]
   journeys Journey[]
+  notifications Notification[]
 }
 
 
@@ -34,6 +35,7 @@ model TrustedContact {
   userId       Int
   name         String
   phone        String
+  email        String?
   relationship String?
   priority     Int      @default(1)
   isActive     Boolean  @default(true)
@@ -95,6 +97,7 @@ model Journey {
   @@index([destinationId])
 
   locations JourneyLocation[]
+  notifications Notification[]
 }
 
 enum JourneyStatus {
@@ -125,4 +128,27 @@ model JourneyLocation {
 
   @@index([journeyId])
   @@index([recordedAt])
+}
+
+
+model Notification {
+    id        Int      @id @default(autoincrement())
+
+    userId    Int
+    journeyId Int?
+
+    type      String
+    channel   String
+    status    String   @default("PENDING")
+
+    message   String
+
+    createdAt DateTime @default(now())
+    sentAt    DateTime?
+
+    user      User      @relation(fields: [userId], references: [id])
+    journey   Journey?  @relation(fields: [journeyId], references: [id])
+
+    @@index([userId])
+    @@index([journeyId])
 }

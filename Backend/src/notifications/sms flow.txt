@@ -1,0 +1,32 @@
+                SAFEREACH
+                    │
+                    ↓
+                LOCATION
+                    │
+                    ↓
+             JOURNEY ENGINE
+                    │
+          ┌─────────┼─────────┐
+          ↓         ↓         ↓
+     Departure     ETA      Arrival
+                    │
+                    ↓
+                  Delay
+                    │
+                    ↓
+              Notification
+                    │
+                    ↓
+            Trusted Contacts
+                    │
+                    ↓
+             Recipient Service
+                    │
+                    ↓
+             Delivery Service
+                    │
+                    ↓
+                SMS Service
+                    │
+                    ↓
+               Mock SMS
