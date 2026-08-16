@@ -1,0 +1,86 @@
+Step 2 — Don't mark arrival from one GPS point
+
+This is very important.
+
+Suppose the hostel is here:
+
+🏠 Hostel
+
+and the user travels on a road:
+
+🚗 ────────────────→
+              🏠
+
+The GPS might temporarily show the user 40m from the hostel.
+
+If we immediately say:
+
+ARRIVED ✅
+
+that could be wrong.
+
+Instead we'll use two conditions:
+
+Condition 1 — User is close enough
+
+For example:
+
+Distance <= 100 meters
+Condition 2 — User remains near the destination
+
+For example:
+
+Location 1 → 75m
+Location 2 → 60m
+Location 3 → 50m
+
+Then:
+
+🏠 Destination
+      ↑
+   50–100m
+      ↑
+   User stays
+
+Now we can confidently say:
+
+ARRIVAL DETECTED
+
+
+
+
+                 CREATE JOURNEY
+                       ↓
+                    PLANNED
+                       ↓
+                 GPS LOCATION
+                       ↓
+                 MOVEMENT?
+                  /       \
+                NO         YES
+                ↓           ↓
+             Ignore     Direction?
+                           ↓
+                    Toward destination?
+                           ↓
+                     3 confirmations
+                           ↓
+                  🚀 DEPARTURE
+                           ↓
+                       ACTIVE
+                           ↓
+                    GPS LOCATION
+                           ↓
+                Distance to destination
+                           ↓
+                      <= 100m?
+                       /     \
+                     NO       YES
+                     ↓         ↓
+                  Continue   Confirmation
+                                ↓
+                         3 confirmations
+                                ↓
+                         🏠 ARRIVAL
+                                ↓
+                           COMPLETED

@@ -1,0 +1,30 @@
+imigine
+Office
+23.2599, 77.4126
+
+and the user sends:
+Current location
+23.2640, 77.4200
+
+
+SafeReach should be able to say:
+Distance from Office: 850 meters
+Distance from Hostel: 8.2 km
+
+Then later we can reason:
+
+850m away from Office
++
+User is moving
++
+User is moving toward Hostel
+        ↓
+Likely departed
+
+And near the end:
+
+120m from Hostel
++
+User is slowing/stopped
+        ↓
+Likely arrived
