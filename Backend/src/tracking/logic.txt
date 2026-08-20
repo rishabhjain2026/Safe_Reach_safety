@@ -28,3 +28,70 @@ Then we update:
 
 status = ACTIVE
 actualDeparture = current location timestamp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Destination reached
+       ↓
+Arrival detected
+       ↓
+Journey → COMPLETED
+       ↓
+📧 Arrival email to trusted contacts
+
+
+
+
+
+
+PLANNED
+   ↓
+DEPARTURE DETECTED
+   ↓
+ACTIVE
+   ↓
+MONITORING
+   ↓
+DELAY? ─── YES → 📧 Delay notification
+   ↓
+DESTINATION REACHED
+   ↓
+COMPLETED
+   ↓
+📧 Safe arrival notification

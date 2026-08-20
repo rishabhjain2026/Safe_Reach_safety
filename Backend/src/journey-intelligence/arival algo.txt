@@ -84,3 +84,65 @@ ARRIVAL DETECTED
                          🏠 ARRIVAL
                                 ↓
                            COMPLETED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+missed rechening home
+                    JOURNEY
+                       │
+                       ▼
+                  PLANNED
+                       │
+              User actually moves
+                       │
+                       ▼
+                   ACTIVE
+                       │
+           ┌───────────┼───────────┐
+           │           │           │
+           ▼           ▼           ▼
+       Movement      Delay       Location
+           │           │           │
+           │           ▼           │
+           │       📧 Delay        │
+           │                       │
+           └───────────┬───────────┘
+                       ▼
+                Expected arrival
+                       │
+              ┌────────┴────────┐
+              │                 │
+              ▼                 ▼
+         Arrived           Not arrived
+              │                 │
+              ▼                 ▼
+         COMPLETED         Grace period
+              │                 │
+              ▼                 ▼
+        📧 Safe arrival    MISSED ARRIVAL
+                                │
+                                ▼
+                            📧 Family

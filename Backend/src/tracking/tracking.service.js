@@ -12,7 +12,11 @@ const {calculateETA} = require("../journey-intelligence/eta.service");
 
 const {analyzeDelay} = require("../journey-intelligence/delay.service");
 
-const {createNotification} = require("../notifications/notification.service");
+// const {createNotification} = require("../notifications/notification.service");
+
+const {createAndDeliverNotification} = require("../notifications/notification-event.service");
+
+const {formatDateTime} = require("../utils/date.util");
 
 const processLocation = async (userId, locationData) => {
 
@@ -27,9 +31,9 @@ const processLocation = async (userId, locationData) => {
             plannedDeparture: "asc"
         },
 
-        orderBy: {
-        createdAt: "desc"
-        },
+        // orderBy: {
+        // createdAt: "desc"
+        // },
         include: {
             origin: true,
             destination: true
@@ -187,6 +191,31 @@ console.log("PREVIOUS LOCATION:", previousLocation);
 // }
 
 
+//     if (
+//         delayAnalysis &&
+//         delayAnalysis.delayDetected
+//     ) {
+//     const existingNotification =
+//         await prisma.notification.findFirst({
+//             where: {
+//                 journeyId: journey.id,
+//                 type: "DELAY_DETECTED"
+//             }
+//         });
+
+//     if (!existingNotification) {
+
+//         await createNotification({
+//             userId: journey.userId,
+//             journeyId: journey.id,
+//             type: "DELAY_DETECTED",
+//             channel: "SMS",
+//             message: `Your journey is delayed by approximately ${delayAnalysis.delayMinutes} minutes.`
+//         });
+//     }
+// }
+
+
     if (
         delayAnalysis &&
         delayAnalysis.delayDetected
@@ -198,20 +227,31 @@ console.log("PREVIOUS LOCATION:", previousLocation);
                 type: "DELAY_DETECTED"
             }
         });
-
     if (!existingNotification) {
+        const message = `
+            SafeReach — Journey Delay Alert
 
-        await createNotification({
+            Your journey from ${journey.origin.name} to ${journey.destination.name} is running late.
+
+            Expected arrival:
+            ${formatDateTime(journey.expectedArrival)}
+
+            Estimated arrival:
+            ${formatDateTime(etaAnalysis.eta)}
+
+            Delay:
+            ${delayAnalysis.delayMinutes} minutes
+
+            SafeReach is continuing to monitor the journey and will notify you when the journey is completed.
+            `;
+        await createAndDeliverNotification({
             userId: journey.userId,
             journeyId: journey.id,
             type: "DELAY_DETECTED",
-            channel: "SMS",
-            message: `Your journey is delayed by approximately ${delayAnalysis.delayMinutes} minutes.`
+            message
         });
     }
 }
-
-
 
 
 
@@ -249,7 +289,56 @@ console.log("PREVIOUS LOCATION:", previousLocation);
     }
 
 
-    if (arrivalAnalysis) {
+// if (arrivalAnalysis) {
+
+//     if (arrivalAnalysis.arrivalDetected) {
+
+//         updatedJourney =
+//             await prisma.journey.update({
+//                 where: {
+//                     id: journey.id
+//                 },
+
+//                 data: {
+//                     status: "COMPLETED",
+
+//                     actualArrival:
+//                         location.recordedAt,
+
+//                     arrivalConfirmations:
+//                         arrivalAnalysis.consecutiveConfirmations
+//                 }
+//             });
+
+//     } else {
+
+//         updatedJourney =
+//             await prisma.journey.update({
+//                 where: {
+//                     id: journey.id
+//                 },
+
+//                 data: {
+//                     arrivalConfirmations:
+//                         arrivalAnalysis.consecutiveConfirmations
+//                 }
+//             });
+//     }
+// }
+
+
+
+
+
+// Destination reached
+//        ↓
+// Arrival detected
+//        ↓
+// Journey → COMPLETED
+//        ↓
+// 📧 Arrival email to trusted contacts
+
+if (arrivalAnalysis) {
 
     if (arrivalAnalysis.arrivalDetected) {
 
@@ -270,6 +359,43 @@ console.log("PREVIOUS LOCATION:", previousLocation);
                 }
             });
 
+
+        // Check whether arrival notification
+        // has already been sent
+        const existingArrivalNotification =
+            await prisma.notification.findFirst({
+                where: {
+                    journeyId: journey.id,
+                    type: "ARRIVAL_DETECTED"
+                }
+            });
+
+
+        if (!existingArrivalNotification) {
+
+            const message = `
+                SafeReach — Journey Completed
+
+                The journey from ${journey.origin.name} to ${journey.destination.name} has been completed successfully.
+
+                Arrival time:
+                ${formatDateTime(location.recordedAt)}
+
+                The traveler has safely reached the destination.
+
+                — SafeReach
+                `;
+
+
+            await createAndDeliverNotification({
+                userId: journey.userId,
+                journeyId: journey.id,
+                type: "ARRIVAL_DETECTED",
+                message
+            });
+        }
+
+
     } else {
 
         updatedJourney =
@@ -284,10 +410,6 @@ console.log("PREVIOUS LOCATION:", previousLocation);
                 }
             });
     }
-
-
-
-    
 }
 
     return {
