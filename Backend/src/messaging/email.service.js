@@ -28,6 +28,23 @@
 
 
 
+// flow for email sender
+
+// Location received
+//       ↓
+// Journey analysis
+//       ↓
+// Delay detected
+//       ↓
+// Notification Event Service
+//       ↓
+// Create Notification in DB
+//       ↓
+// Find Trusted Contacts
+//       ↓
+// Send Email
+//       ↓
+// Update Notification → SENT
 
 
 // actual email sender code below
