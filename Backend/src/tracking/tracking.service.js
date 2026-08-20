@@ -89,6 +89,16 @@ console.log("PREVIOUS LOCATION:", previousLocation);
             }
         });
 
+        await prisma.journey.update({
+        where: {
+            id: journey.id
+        },
+
+        data: {
+            lastLocationAt: location.recordedAt
+        }
+    });
+
     const analysis = await analyzeLocation(
         journey.id,
         {

@@ -84,6 +84,14 @@ model Journey {
   departureConfirmations Int @default(0)
   arrivalConfirmations Int @default(0)
 
+  batteryPercentage Int?
+  batteryStatus     String?
+
+  lastHeartbeatAt DateTime?
+  deviceStatus    String?
+
+  lastLocationAt DateTime?
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 

@@ -13,3 +13,71 @@ backend/
 ├── .gitignore
 ├── package.json
 └── package-lock.json
+
+
+
+
+
+
+
+
+
+
+now we have in our project
+✅ Journey creation
+✅ Places
+✅ Trusted contacts
+✅ Location tracking
+✅ Automatic departure detection
+✅ ETA
+✅ Delay detection
+✅ Arrival detection
+✅ Missed arrival detection
+✅ Email notifications
+✅ Battery monitoring
+✅ Low battery alert
+✅ Critical battery alert
+
+
+
+
+
+
+
+
+
+
+                    JOURNEY
+                       │
+                       ▼
+                    ACTIVE
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+        ▼              ▼              ▼
+     Location       Battery       Heartbeat
+        │              │              │
+        ▼              ▼              ▼
+    Movement      LOW/CRITICAL   Last seen
+        │              │              │
+        ▼              ▼              ▼
+      ETA          📧 Alert            │
+        │                              │
+        ▼                              ▼
+      Delay                    Device unreachable
+        │                              │
+        ▼                              ▼
+     📧 Alert                       📧 Alert
+        │
+        ▼
+     Arrival
+        │
+   ┌────┴────┐
+   ▼         ▼
+Reached    Not reached
+   │           │
+   ▼           ▼
+COMPLETED   Missed arrival
+               │
+               ▼
+            📧 Alert
