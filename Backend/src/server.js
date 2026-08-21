@@ -11,6 +11,8 @@ const missedArrivalRoutes =require("./journey-intelligence/missed-arrival.routes
 const batteryRoutes =require("./battery/battery.routes");
 const deviceRoutes =require("./device/device.routes");
 const {startDeviceMonitorScheduler} = require("./scheduler/device-monitor.scheduler");
+const safetyRoutes =
+    require("./journey-intelligence/safety.routes");
 
 
 const app = express();
@@ -33,6 +35,10 @@ app.use("/api/notifications",notificationRoutes);
 app.use("/api/missed-arrival",missedArrivalRoutes);
 app.use("/api/battery",batteryRoutes);
 app.use("/api/device",deviceRoutes);
+app.use(
+    "/api/safety",
+    safetyRoutes
+);
 
 const PORT = process.env.PORT || 5000;
 
