@@ -92,6 +92,10 @@ model Journey {
 
   lastLocationAt DateTime?
 
+  safetyState String?
+
+  safetyEvents SafetyEvent[]
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -159,4 +163,21 @@ model Notification {
 
     @@index([userId])
     @@index([journeyId])
+}
+
+
+model SafetyEvent {
+    id        Int      @id @default(autoincrement())
+
+    journeyId Int
+    type      String
+    severity  String
+    message   String
+
+    createdAt DateTime @default(now())
+
+    journey Journey @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+
+    @@index([journeyId])
+    @@index([type])
 }

@@ -1,5 +1,9 @@
 const prisma = require("../config/prisma");
 
+const {
+    analyzeJourneySafety
+} = require("../journey-intelligence/safety.service");
+
 
 const processHeartbeat = async (journeyId) => {
 
@@ -37,15 +41,18 @@ const processHeartbeat = async (journeyId) => {
                 deviceStatus: "CONNECTED"
             }
         });
-
+    const safetyAnalysis =
+    await analyzeJourneySafety(journeyId);
 
     return {
-        lastHeartbeatAt:
-            updatedJourney.lastHeartbeatAt,
+    lastHeartbeatAt:
+        updatedJourney.lastHeartbeatAt,
 
-        deviceStatus:
-            updatedJourney.deviceStatus
-    };
+    deviceStatus:
+        updatedJourney.deviceStatus,
+
+    safetyAnalysis
+};
 };
 
 

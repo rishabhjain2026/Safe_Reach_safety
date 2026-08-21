@@ -2,6 +2,10 @@ const prisma = require("../config/prisma");
 
 const {createAndDeliverNotification} = require("../notifications/notification-event.service");
 
+const {
+    analyzeJourneySafety
+} = require("../journey-intelligence/safety.service");
+
 
 const LOW_BATTERY_THRESHOLD = 20;
 const CRITICAL_BATTERY_THRESHOLD = 10;
@@ -80,6 +84,9 @@ const processBattery = async (
         }
     });
 
+    const safetyAnalysis =
+    await analyzeJourneySafety(journeyId);
+
 
     /*
      * Send notification only when
@@ -149,7 +156,8 @@ Please check on the traveler if necessary.
 
     return {
         batteryPercentage: battery,
-        batteryStatus
+        batteryStatus,
+        safetyAnalysis
     };
 };
 

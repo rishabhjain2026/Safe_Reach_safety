@@ -18,6 +18,12 @@ const {createAndDeliverNotification} = require("../notifications/notification-ev
 
 const {formatDateTime} = require("../utils/date.util");
 
+const {
+    analyzeJourneySafety
+} = require("../journey-intelligence/safety.service");
+
+const {detectSafetyStateChange} = require("../journey-intelligence/safety-event-detector.service");
+
 const processLocation = async (userId, locationData) => {
 
     const journey = await prisma.journey.findFirst({
@@ -98,6 +104,43 @@ console.log("PREVIOUS LOCATION:", previousLocation);
             lastLocationAt: location.recordedAt
         }
     });
+
+    
+
+    const safetyAnalysis =await analyzeJourneySafety(journey.id);
+
+    const safetyEvent =await detectSafetyStateChange({journey,safetyAnalysis});
+
+
+//     Old state
+//    ↓
+// Analyze
+//    ↓
+// Compare
+//    ↓
+// Changed?
+//    ├── NO → do nothing
+//    │
+//    └── YES
+//         ↓
+//     Create event
+//         ↓
+//     Update safetyState
+
+    if (
+    safetyAnalysis.state !== journey.safetyState) {
+
+    await prisma.journey.update({
+        where: {
+            id: journey.id
+        },
+
+        data: {
+            safetyState:
+                safetyAnalysis.state
+        }
+    });
+}
 
     const analysis = await analyzeLocation(
         journey.id,
@@ -431,7 +474,9 @@ if (arrivalAnalysis) {
         departureAnalysis,
         arrivalAnalysis,
         etaAnalysis,
-        delayAnalysis
+        delayAnalysis,
+        safetyAnalysis,
+        safetyEvent
     };
 };
 
