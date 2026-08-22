@@ -13,7 +13,9 @@ const deviceRoutes =require("./device/device.routes");
 const {startDeviceMonitorScheduler} = require("./scheduler/device-monitor.scheduler");
 const safetyRoutes =
     require("./journey-intelligence/safety.routes");
-
+const {
+    startNotificationRetryWorker
+} = require("./notifications/notification-retry.worker");
 
 const app = express();
 
@@ -45,5 +47,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`SafeReach server running on port ${PORT}`);
     startDeviceMonitorScheduler();
+    startNotificationRetryWorker();
     
 });
