@@ -4,3 +4,23 @@ use the se two command before runnnig the app
 
 
 
+
+Your current flow is:
+
+ACTIVE Journey
+      ↓
+Check lastHeartbeatAt
+      ↓
+More than 2 minutes old?
+      ↓
+YES
+      ↓
+deviceStatus = UNREACHABLE
+      ↓
+Check if notification already exists
+      ↓
+No existing notification?
+      ↓
+createAndDeliverNotification()
+      ↓
+Email trusted contact

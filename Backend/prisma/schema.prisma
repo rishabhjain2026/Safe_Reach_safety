@@ -155,6 +155,9 @@ model Notification {
 
     message   String
 
+    retryCount Int      @default(0)
+    lastError  String?
+
     createdAt DateTime @default(now())
     sentAt    DateTime?
 
