@@ -6,6 +6,8 @@ import {
     Settings
 } from "lucide-react";
 
+import { NavLink } from "react-router-dom";
+
 const Sidebar = () => {
 
     return (
@@ -17,30 +19,30 @@ const Sidebar = () => {
 
             <nav className="sidebar-nav">
 
-                <a href="/">
-                    <LayoutDashboard size={20} />
-                    <span>Dashboard</span>
-                </a>
+               <NavLink to="/">
+    <LayoutDashboard size={20} />
+    <span>Dashboard</span>
+</NavLink>
 
-                <a href="/journeys">
-                    <Map size={20} />
-                    <span>Journeys</span>
-                </a>
+        <NavLink to="/journeys">
+            <Map size={20} />
+            <span>Journeys</span>
+        </NavLink>
 
-                <a href="/places">
-                    <MapPin size={20} />
-                    <span>Places</span>
-                </a>
+        <NavLink to="/places">
+            <MapPin size={20} />
+            <span>Places</span>
+        </NavLink>
 
-                <a href="/contacts">
-                    <Users size={20} />
-                    <span>Trusted Contacts</span>
-                </a>
+        <NavLink to="/contacts">
+            <Users size={20} />
+            <span>Trusted Contacts</span>
+        </NavLink>
 
-                <a href="/settings">
-                    <Settings size={20} />
-                    <span>Settings</span>
-                </a>
+        <NavLink to="/settings">
+            <Settings size={20} />
+            <span>Settings</span>
+        </NavLink>
 
             </nav>
 
