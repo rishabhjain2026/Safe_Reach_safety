@@ -323,3 +323,616 @@ body {
     }
 
 }
+
+
+
+/* Authentication */
+
+.auth-page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: #f5f7fb;
+}
+
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+
+    background: white;
+
+    padding: 36px;
+
+    border-radius: 16px;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow:
+        0 10px 30px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+.login-header {
+    margin-bottom: 28px;
+}
+
+
+.login-header h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+
+.login-header p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.form-group input {
+    width: 100%;
+
+    padding: 12px;
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+
+.form-group input:focus {
+    outline: none;
+
+    border-color: #111827;
+}
+
+
+.login-button {
+    width: 100%;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #111827;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.login-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+
+.error-message {
+    margin-bottom: 18px;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    background: #fef2f2;
+
+    color: #b91c1c;
+
+    font-size: 14px;
+}
+
+
+
+
+/* Places */
+
+.places-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    margin-bottom: 6px;
+}
+
+.page-header p {
+    color: #6b7280;
+}
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 11px 16px;
+
+    border-radius: 9px;
+    border: none;
+
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary-button {
+    background: #111827;
+    color: white;
+}
+
+.primary-button:hover {
+    background: #1f2937;
+}
+
+.secondary-button {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.place-form-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.place-form-card h2 {
+    margin-bottom: 22px;
+}
+
+.coordinates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.places-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.place-card {
+    display: flex;
+    gap: 14px;
+
+    padding: 20px;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+}
+
+.place-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    background: #f3f4f6;
+    border-radius: 11px;
+}
+
+.place-card h3 {
+    margin-bottom: 6px;
+}
+
+.place-card p {
+    color: #6b7280;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.place-card span {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.empty-state {
+    background: white;
+
+    border: 1px dashed #d1d5db;
+    border-radius: 16px;
+
+    padding: 50px 20px;
+
+    text-align: center;
+}
+
+.empty-state svg {
+    margin-bottom: 14px;
+}
+
+.empty-state h3 {
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    color: #6b7280;
+}
+
+@media (max-width: 650px) {
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .coordinates-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+
+/* Trusted Contacts */
+
+.contacts-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.contact-form-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.contact-form-card h2 {
+    margin-bottom: 22px;
+}
+
+.contact-form-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, 1fr);
+    gap: 16px;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+}
+
+.contacts-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(300px, 1fr)
+        );
+
+    gap: 18px;
+}
+
+.contact-card {
+    background: white;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    padding: 20px;
+}
+
+.contact-card-header {
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        flex-start;
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+}
+
+.contact-card-header h3 {
+    margin-bottom: 4px;
+}
+
+.contact-card-header span {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.contact-status {
+    padding: 5px 9px;
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.contact-status.active {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.contact-status.inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.contact-details div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.contact-card-footer {
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items: center;
+
+    padding-top: 16px;
+
+    border-top:
+        1px solid #f3f4f6;
+}
+
+.contact-card-footer > span {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.contact-card-footer > div {
+    display: flex;
+    gap: 6px;
+}
+
+.icon-action-button {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #f3f4f6;
+
+    cursor: pointer;
+}
+
+.icon-action-button:hover {
+    background: #e5e7eb;
+}
+
+.icon-action-button.danger {
+    color: #dc2626;
+}
+
+@media (max-width: 650px) {
+
+    .contact-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+
+/* Journeys */
+
+.journeys-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.journey-form-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.journey-form-card h2 {
+    margin-bottom: 22px;
+}
+
+.journeys-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+}
+
+.journey-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.journey-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.journey-status {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.journey-status.planned {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.journey-status.active {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.journey-status.completed {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.journey-status.cancelled {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.journey-id {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.journey-route {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.journey-route > div:not(.route-line) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.route-line {
+    padding-left: 4px;
+    color: #9ca3af;
+}
+
+.journey-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    color: #6b7280;
+    font-size: 14px;
+
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.journey-details div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.journey-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.small-button {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.danger-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 10px 14px;
+
+    background: #fef2f2;
+    color: #dc2626;
+
+    border: none;
+    border-radius: 9px;
+
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.danger-button:hover {
+    background: #fee2e2;
+}
