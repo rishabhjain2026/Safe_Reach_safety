@@ -26,20 +26,20 @@ const {detectSafetyStateChange} = require("../journey-intelligence/safety-event-
 
 const processLocation = async (userId, locationData) => {
 
+    const journeyId = Number(locationData.journeyId);
+
+    if (!Number.isInteger(journeyId) || journeyId < 1) {
+        throw new Error("Invalid journey ID");
+    }
+
     const journey = await prisma.journey.findFirst({
         where: {
+            id: journeyId,
             userId,
             status: {
                 in: ["PLANNED", "ACTIVE"]
             }
         },
-        orderBy: {
-            plannedDeparture: "asc"
-        },
-
-        // orderBy: {
-        // createdAt: "desc"
-        // },
         include: {
             origin: true,
             destination: true
@@ -47,8 +47,10 @@ const processLocation = async (userId, locationData) => {
     });
 
     if (!journey) {
-        throw new Error("No planned journey found");
+        throw new Error("Journey not found");
     }
+
+    console.log("Tracking journey:", journey.id);
     console.log("journey",journey)
 
     const currentRecordedAt =
