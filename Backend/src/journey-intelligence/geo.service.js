@@ -1,7 +1,7 @@
 // calculate distance between two points
 
 const calculateDistance = (latitude1,longitude1,latitude2,longitude2) => {
-    const earthRadius = 6371000;
+    const earthRadius = 6371;
 
     const lat1 = latitude1 * Math.PI / 180;
     const lat2 = latitude2 * Math.PI / 180;
@@ -19,7 +19,7 @@ const calculateDistance = (latitude1,longitude1,latitude2,longitude2) => {
         Math.cos(lat2) *
         Math.sin(deltaLongitude / 2) *
         Math.sin(deltaLongitude / 2);
-
+                                                    
     const c =
         2 * Math.atan2(
             Math.sqrt(a),

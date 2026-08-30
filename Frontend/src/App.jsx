@@ -9,6 +9,8 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import Places from "./pages/Places/Places";
 import Contacts from "./pages/Contacts/Contacts";
 import Journeys from "./pages/Journeys/Journeys";
+import LiveJourney from "./pages/LiveJourney/LiveJourney";
+
 
 function App() {
   return (
@@ -39,6 +41,13 @@ function App() {
                     path="/journeys"
                     element={<Journeys />}
                   />
+
+                  <Route
+                    path="/live-journey/:journeyId"
+                    element={<LiveJourney />}
+                  />
+
+
                 </Routes>
               </Layout>
             </ProtectedRoute>

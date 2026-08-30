@@ -1,6 +1,11 @@
 const { body,validationResult} = require("express-validator");
 
 const locationValidation = [
+    body("journeyId")
+    .isInt({ min: 1 })
+    .withMessage(
+        "Journey ID must be a valid number"
+    ),
     body("latitude")
         .isFloat({ min: -90, max: 90 })
         .withMessage("Latitude must be between -90 and 90"),

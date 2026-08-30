@@ -22,6 +22,8 @@ import {
 import {
     getPlaces
 } from "../../services/place.service";
+import { useNavigate } from "react-router-dom";
+
 
 
 const Journeys = () => {
@@ -310,6 +312,7 @@ const Journeys = () => {
 
     };
 
+    
 
     const formatDate = (date) => {
 
@@ -318,6 +321,8 @@ const Journeys = () => {
         ).toLocaleString();
 
     };
+
+    const navigate = useNavigate();
 
 
     return (
@@ -719,6 +724,15 @@ const Journeys = () => {
                                     "PLANNED" && (
 
                                     <div className="journey-actions">
+
+                                        <button
+                                            className="primary-button small-button"
+                                            onClick={() =>
+                                                navigate(`/live-journey/${journey.id}`)
+                                            }
+                                        >
+                                            Track Journey
+                                        </button>
 
 
                                         <button
