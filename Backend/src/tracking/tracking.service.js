@@ -24,6 +24,9 @@ const {
 
 const {detectSafetyStateChange} = require("../journey-intelligence/safety-event-detector.service");
 
+const LOW_BATTERY_THRESHOLD = 20;
+
+
 const processLocation = async (userId, locationData) => {
 
     const journeyId = Number(locationData.journeyId);
@@ -98,15 +101,96 @@ console.log("PREVIOUS LOCATION:", previousLocation);
         });
 
         await prisma.journey.update({
-        where: {
-            id: journey.id
-        },
+    where: {
+        id: journey.id
+    },
 
-        data: {
-            lastLocationAt: location.recordedAt
-        }
-    });
+    data: {
+        lastLocationAt: location.recordedAt,
 
+        batteryPercentage:
+            locationData.batteryLevel !== null &&
+            locationData.batteryLevel !== undefined
+                ? Math.round(
+                    Number(locationData.batteryLevel)
+                )
+                : undefined,
+
+        batteryStatus:
+            locationData.isCharging === true
+                ? "CHARGING"
+                : locationData.isCharging === false
+                    ? "NOT_CHARGING"
+                    : undefined
+    }
+});
+
+const batteryLevel = Number(
+    locationData.batteryLevel
+);
+
+const isBatteryLow =
+    locationData.batteryLevel !== null &&
+    locationData.batteryLevel !== undefined &&
+    batteryLevel <= LOW_BATTERY_THRESHOLD;
+const isCharging =
+    locationData.isCharging === true;
+
+    if (isBatteryLow && !isCharging) {
+
+    const existingNotification =
+        await prisma.notification.findFirst({
+            where: {
+                journeyId: journey.id,
+                type: "LOW_BATTERY"
+            }
+        });
+
+    if (!existingNotification) {
+
+        const message = `
+SafeReach — Low Battery Alert
+
+The traveler's device battery is currently at ${batteryLevel}%.
+
+The device is not charging.
+
+Journey:
+${journey.origin.name} → ${journey.destination.name}
+
+Location tracking may become unavailable if the battery runs out.
+
+— SafeReach
+`;
+
+        await createAndDeliverNotification({
+            userId: journey.userId,
+            journeyId: journey.id,
+            type: "LOW_BATTERY",
+            message
+        });
+
+    }
+
+}
+
+
+
+// Create location
+//       ↓
+// Update last location
+//       ↓
+// Store battery information
+//       ↓
+// Check battery ≤ 20%
+//       ↓
+// Check charging status
+//       ↓
+// Check existing notification
+//       ↓
+// Send email if required
+//       ↓
+// Continue journey analysis
     
 
     const safetyAnalysis =await analyzeJourneySafety(journey.id);

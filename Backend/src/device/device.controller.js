@@ -23,7 +23,8 @@ const receiveHeartbeat = async (req, res) => {
 
         const result =
             await processHeartbeat(
-                Number(journeyId)
+                Number(journeyId),
+                req.userId
             );
 
 

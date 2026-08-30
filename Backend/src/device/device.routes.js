@@ -1,6 +1,9 @@
 const express = require("express");
 
 const router = express.Router();
+const {
+    authenticate
+} = require("../middleware/auth.validation");
 
 const {
     receiveHeartbeat
@@ -12,7 +15,7 @@ const {
 
 
 router.post(
-    "/heartbeat",
+    "/heartbeat",authenticate,
     receiveHeartbeat
 );
 
