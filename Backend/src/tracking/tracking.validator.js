@@ -26,7 +26,21 @@ const locationValidation = [
 
     body("timestamp")
         .isISO8601()
-        .withMessage("Timestamp must be a valid date")
+        .withMessage("Timestamp must be a valid date"),
+
+    body("batteryLevel")
+        .optional({ nullable: true })
+        .isFloat({ min: 0, max: 100 })
+        .withMessage(
+            "Battery level must be between 0 and 100"
+        ),
+
+    body("isCharging")
+        .optional({ nullable: true })
+        .isBoolean()
+        .withMessage(
+            "Charging status must be true or false"
+        ),
 ];
 
 const validateRequest = (req, res, next) => {

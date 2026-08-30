@@ -39,22 +39,88 @@ const LiveJourney = () => {
 
     const [journey, setJourney] = useState(null);
 
-    const fetchJourney = async () => {
+    const [battery, setBattery] = useState(null);
+
+    const batteryRef = useRef(null);
+    const getBatteryInfo = async () => {
 
     try {
+
+        if (!navigator.getBattery) {
+
+            console.log(
+                "Battery API is not supported in this browser"
+            );
+
+            return;
+        }
+
+        const batteryManager =
+            await navigator.getBattery();
+
+        const updateBattery = () => {
+
+            const batteryData = {
+
+                level:
+                    Math.round(
+                        batteryManager.level * 100
+                    ),
+
+                charging:
+                    batteryManager.charging
+
+            };
+
+            setBattery(batteryData);
+
+            batteryRef.current = batteryData;
+
+        };
+
+
+        updateBattery();
+
+
+        batteryManager.addEventListener(
+            "levelchange",
+            updateBattery
+        );
+
+        batteryManager.addEventListener(
+            "chargingchange",
+            updateBattery
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Failed to get battery information:",
+            error
+        );
+
+    }
+
+};
+
+
+    const fetchJourney = async () => {
+
+    
 
         const response =
             await getJourneyById(journeyId);
 
         setJourney(response.data);
 
-    } catch (error) {
+    
+    //catch (error) {
 
-        setError(
-            "Failed to fetch journey details"
-        );
+    //     setError(
+    //         "Failed to fetch journey details"
+    //     );
 
-    }
+    // }
 
 };
 
@@ -98,7 +164,15 @@ const LiveJourney = () => {
                         timestamp:
                             new Date(
                                 position.timestamp
-                            ).toISOString()
+                            ).toISOString(),
+
+                        batteryLevel: battery
+                            ? battery.level
+                            : null,
+
+                        isCharging: battery
+                            ? battery.charging
+                            : null
 
                     };
 
@@ -242,6 +316,14 @@ const LiveJourney = () => {
         fetchJourney();
 
     }, [journeyId]);
+
+
+
+    useEffect(() => {
+
+    getBatteryInfo();
+
+}, []);
     
     
     
@@ -582,24 +664,35 @@ const LiveJourney = () => {
 
                 {/* Battery placeholder */}
 
-                <div className="live-card">
+                <div className="battery-card">
 
-                    <div className="live-card-title">
+    <p className="section-label">
+        DEVICE BATTERY
+    </p>
 
-                        <Battery size={20} />
+    {battery ? (
 
-                        Battery
+        <>
+            <h2>
+                🔋 {battery.level}%
+            </h2>
 
-                    </div>
+            <p>
+                {battery.charging
+                    ? "Charging"
+                    : "Not charging"}
+            </p>
+        </>
 
+    ) : (
 
-                    <p className="muted-text">
+        <p>
+            Battery information is not available
+        </p>
 
-                        Battery monitoring will be added next.
+    )}
 
-                    </p>
-
-                </div>
+</div>
 
 
             </div>
