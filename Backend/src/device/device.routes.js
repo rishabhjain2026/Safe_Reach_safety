@@ -26,3 +26,17 @@ router.post(
 
 
 module.exports = router;
+
+
+
+// React
+//  ↓
+// JWT
+//  ↓
+// POST /api/device/heartbeat
+//  ↓
+// authenticate
+//  ↓
+// req.userId
+//  ↓
+// processHeartbeat(journeyId, userId)

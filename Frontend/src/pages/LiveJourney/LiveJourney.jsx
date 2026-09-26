@@ -7,19 +7,19 @@ import {
 import {
     Navigation,
     MapPin,
-    Battery,
     Clock,
     Radio
 } from "lucide-react";
 
-import { sendLocation } from "../../services/tracking.service";
-
 import { useParams } from "react-router-dom";
 
+import { sendLocation } from "../../services/tracking.service";
 import { getJourneyById } from "../../services/journey.service";
+import { sendHeartbeat } from "../../services/device.service";
 
 
 const LiveJourney = () => {
+
     const { journeyId } = useParams();
 
     const [tracking, setTracking] =
@@ -34,102 +34,321 @@ const LiveJourney = () => {
     const [error, setError] =
         useState("");
 
+    const [journey, setJourney] =
+        useState(null);
+
+    const [battery, setBattery] =
+        useState(null);
+
+
+    // Store browser tracking ID
     const watchIdRef =
         useRef(null);
 
-    const [journey, setJourney] = useState(null);
+    // Store heartbeat interval
+    const heartbeatIntervalRef =
+        useRef(null);
 
-    const [battery, setBattery] = useState(null);
+    // Store latest battery information
+    const batteryRef =
+        useRef(null);
 
-    const batteryRef = useRef(null);
-    const getBatteryInfo = async () => {
 
-    try {
+    /*
+    |--------------------------------------------------------------------------
+    | Load Journey
+    |--------------------------------------------------------------------------
+    */
 
-        if (!navigator.getBattery) {
+    useEffect(() => {
 
-            console.log(
-                "Battery API is not supported in this browser"
-            );
-
+        if (!journeyId) {
             return;
         }
 
-        const batteryManager =
-            await navigator.getBattery();
+        let cancelled = false;
 
-        const updateBattery = () => {
+        const loadJourney = async () => {
 
-            const batteryData = {
+            try {
 
-                level:
-                    Math.round(
-                        batteryManager.level * 100
-                    ),
+                const response =
+                    await getJourneyById(journeyId);
 
-                charging:
-                    batteryManager.charging
+                if (cancelled) {
+                    return;
+                }
 
-            };
+                setJourney(response.data);
 
-            setBattery(batteryData);
+            } catch (error) {
 
-            batteryRef.current = batteryData;
+                if (cancelled) {
+                    return;
+                }
 
+                console.error(
+                    "Failed to fetch journey:",
+                    error
+                );
+
+                setError(
+                    error.response?.data?.message ||
+                    "Failed to load journey"
+                );
+            }
+        };
+
+        loadJourney();
+
+        return () => {
+            cancelled = true;
+        };
+
+    }, [journeyId]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Battery Information
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        let batteryManager = null;
+        let initialUpdateTimeout = null;
+
+        const setupBattery = async () => {
+
+            try {
+
+                if (!navigator.getBattery) {
+
+                    console.log(
+                        "Battery API is not supported in this browser"
+                    );
+
+                    return;
+                }
+
+                batteryManager =
+                    await navigator.getBattery();
+
+
+                const updateBattery = () => {
+
+                    if (!batteryManager) {
+                        return;
+                    }
+
+                    const batteryData = {
+                        level:
+                            Math.round(
+                                batteryManager.level * 100
+                            ),
+
+                        charging:
+                            batteryManager.charging
+                    };
+
+
+                    batteryRef.current =
+                        batteryData;
+
+
+                    setBattery(
+                        batteryData
+                    );
+                };
+
+
+                /*
+                 * Delay the first state update so React does not
+                 * treat it as a synchronous setState inside the effect.
+                 */
+                initialUpdateTimeout =
+                    setTimeout(() => {
+
+                        updateBattery();
+
+                    }, 0);
+
+
+                batteryManager.addEventListener(
+                    "levelchange",
+                    updateBattery
+                );
+
+                batteryManager.addEventListener(
+                    "chargingchange",
+                    updateBattery
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to get battery information:",
+                    error
+                );
+            }
         };
 
 
-        updateBattery();
+        setupBattery();
 
 
-        batteryManager.addEventListener(
-            "levelchange",
-            updateBattery
-        );
+        return () => {
 
-        batteryManager.addEventListener(
-            "chargingchange",
-            updateBattery
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Failed to get battery information:",
-            error
-        );
-
-    }
-
-};
+            if (initialUpdateTimeout) {
+                clearTimeout(
+                    initialUpdateTimeout
+                );
+            }
 
 
-    const fetchJourney = async () => {
+            if (batteryManager) {
 
-    
+                batteryManager.removeEventListener(
+                    "levelchange",
+                    () => {}
+                );
 
-        const response =
-            await getJourneyById(journeyId);
+                batteryManager.removeEventListener(
+                    "chargingchange",
+                    () => {}
+                );
+            }
+        };
 
-        setJourney(response.data);
+    }, []);
 
-    
-    //catch (error) {
 
-    //     setError(
-    //         "Failed to fetch journey details"
-    //     );
+    /*
+    |--------------------------------------------------------------------------
+    | Start Heartbeat
+    |--------------------------------------------------------------------------
+    */
 
-    // }
+    const startHeartbeat = () => {
 
-};
+        /*
+         * Prevent multiple heartbeat intervals.
+         */
+        if (
+            heartbeatIntervalRef.current !== null
+        ) {
+            return;
+        }
 
+
+        /*
+         * Send heartbeat immediately.
+         */
+        const sendInitialHeartbeat =
+            async () => {
+
+                try {
+
+                    await sendHeartbeat(
+                        journeyId
+                    );
+
+                    console.log(
+                        "Heartbeat sent"
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Heartbeat failed:",
+                        error
+                    );
+                }
+            };
+
+
+        sendInitialHeartbeat();
+
+
+        /*
+         * Send heartbeat every 30 seconds.
+         */
+        heartbeatIntervalRef.current =
+            setInterval(
+                async () => {
+
+                    try {
+
+                        await sendHeartbeat(
+                            journeyId
+                        );
+
+                        console.log(
+                            "Heartbeat sent"
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            "Heartbeat failed:",
+                            error
+                        );
+                    }
+
+                },
+                30 * 1000
+            );
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stop Heartbeat
+    |--------------------------------------------------------------------------
+    */
+
+    const stopHeartbeat = () => {
+
+        if (
+            heartbeatIntervalRef.current !== null
+        ) {
+
+            clearInterval(
+                heartbeatIntervalRef.current
+            );
+
+            heartbeatIntervalRef.current =
+                null;
+        }
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Start Tracking
+    |--------------------------------------------------------------------------
+    */
 
     const startTracking = () => {
 
         setError("");
 
 
+        /*
+         * Prevent starting multiple GPS watchers.
+         */
+        if (
+            watchIdRef.current !== null
+        ) {
+
+            return;
+        }
+
+
+        /*
+         * Check browser GPS support.
+         */
         if (!navigator.geolocation) {
 
             setError(
@@ -140,10 +359,21 @@ const LiveJourney = () => {
         }
 
 
+        /*
+         * Start watching user's location.
+         */
         watchIdRef.current =
             navigator.geolocation.watchPosition(
 
                 async (position) => {
+
+                    /*
+                     * Always use the latest battery value
+                     * from the ref.
+                     */
+                    const currentBattery =
+                        batteryRef.current;
+
 
                     const locationData = {
 
@@ -166,22 +396,29 @@ const LiveJourney = () => {
                                 position.timestamp
                             ).toISOString(),
 
-                        batteryLevel: battery
-                            ? battery.level
-                            : null,
+                        batteryLevel:
+                            currentBattery
+                                ? currentBattery.level
+                                : null,
 
-                        isCharging: battery
-                            ? battery.charging
-                            : null
-
+                        isCharging:
+                            currentBattery
+                                ? currentBattery.charging
+                                : null
                     };
 
 
+                    /*
+                     * Show location immediately in UI.
+                     */
                     setLocation(
                         locationData
                     );
 
 
+                    /*
+                     * Send location to backend.
+                     */
                     try {
 
                         const response =
@@ -195,7 +432,6 @@ const LiveJourney = () => {
                             response.data
                         );
 
-
                     } catch (error) {
 
                         console.error(
@@ -203,16 +439,18 @@ const LiveJourney = () => {
                             error
                         );
 
+
                         setError(
                             error.response?.data?.message ||
                             "Failed to send location"
                         );
-
                     }
-
                 },
 
 
+                /*
+                 * GPS error callback
+                 */
                 (error) => {
 
                     console.error(
@@ -225,54 +463,44 @@ const LiveJourney = () => {
                         error.message ||
                         "Unable to get location"
                     );
-
                 },
 
 
+                /*
+                 * GPS options
+                 */
                 {
                     enableHighAccuracy: true,
-
                     maximumAge: 0,
-
                     timeout: 10000
                 }
-
             );
 
 
+        /*
+         * Update UI.
+         */
         setTracking(true);
 
+
+        /*
+         * Start device heartbeat.
+         */
+        startHeartbeat();
     };
 
 
-//     useEffect(() => {
-
-//     const fetchJourney = async () => {
-
-//         try {
-
-//             const response =
-//                 await getJourneyById(journeyId);
-
-//             setJourney(response.data);
-
-//         } catch (error) {
-
-//             setError(
-//                 error.response?.data?.message ||
-//                 "Failed to load journey"
-//             );
-
-//         }
-
-//     };
-
-//     fetchJourney();
-
-// }, [journeyId]);
+    /*
+    |--------------------------------------------------------------------------
+    | Stop Tracking
+    |--------------------------------------------------------------------------
+    */
 
     const stopTracking = () => {
 
+        /*
+         * Stop GPS watcher.
+         */
         if (
             watchIdRef.current !== null
         ) {
@@ -281,22 +509,37 @@ const LiveJourney = () => {
                 watchIdRef.current
             );
 
-            watchIdRef.current = null;
-
+            watchIdRef.current =
+                null;
         }
 
 
-        setTracking(false);
+        /*
+         * Stop heartbeat.
+         */
+        stopHeartbeat();
 
+
+        /*
+         * Update UI.
+         */
+        setTracking(false);
     };
 
 
-    // Stop tracking when component unmounts
+    /*
+    |--------------------------------------------------------------------------
+    | Cleanup when page/component is closed
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
         return () => {
 
+            /*
+             * Stop GPS watcher.
+             */
             if (
                 watchIdRef.current !== null
             ) {
@@ -305,37 +548,44 @@ const LiveJourney = () => {
                     watchIdRef.current
                 );
 
+                watchIdRef.current =
+                    null;
             }
 
+
+            /*
+             * Stop heartbeat interval.
+             */
+            if (
+                heartbeatIntervalRef.current !== null
+            ) {
+
+                clearInterval(
+                    heartbeatIntervalRef.current
+                );
+
+                heartbeatIntervalRef.current =
+                    null;
+            }
         };
 
     }, []);
 
-    useEffect(() => {
 
-        fetchJourney();
-
-    }, [journeyId]);
-
-
-
-    useEffect(() => {
-
-    getBatteryInfo();
-
-}, []);
-    
-    
-    
-
-
+    /*
+    |--------------------------------------------------------------------------
+    | UI
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
-        
-
         <div className="live-journey-page">
 
+
+            {/* --------------------------------------------------------- */}
+            {/* Header */}
+            {/* --------------------------------------------------------- */}
 
             <div className="page-header">
 
@@ -380,36 +630,52 @@ const LiveJourney = () => {
 
             </div>
 
+
+            {/* --------------------------------------------------------- */}
+            {/* Journey Summary */}
+            {/* --------------------------------------------------------- */}
+
             {journey && (
 
-    <div className="journey-summary-card">
+                <div className="journey-summary-card">
 
-        <div>
+                    <div>
 
-            <p className="section-label">
-                CURRENT JOURNEY
-            </p>
+                        <p className="section-label">
+                            CURRENT JOURNEY
+                        </p>
 
-            <h2>
-                {journey.origin?.name}
-                {" → "}
-                {journey.destination?.name}
-            </h2>
+                        <h2>
 
-        </div>
+                            {journey.origin?.name}
 
-        <span
-            className={`journey-status ${journey.status.toLowerCase()}`}
-        >
-            {journey.status}
-        </span>
+                            {" → "}
 
-    </div>
+                            {journey.destination?.name}
 
-)}
+                        </h2>
+
+                    </div>
 
 
+                    <span
+                        className={`journey-status ${
+                            journey.status?.toLowerCase() || ""
+                        }`}
+                    >
 
+                        {journey.status}
+
+                    </span>
+
+                </div>
+
+            )}
+
+
+            {/* --------------------------------------------------------- */}
+            {/* Error */}
+            {/* --------------------------------------------------------- */}
 
             {error && (
 
@@ -422,7 +688,9 @@ const LiveJourney = () => {
             )}
 
 
+            {/* --------------------------------------------------------- */}
             {/* Tracking Status */}
+            {/* --------------------------------------------------------- */}
 
             <div className="live-status-card">
 
@@ -450,10 +718,16 @@ const LiveJourney = () => {
             </div>
 
 
-            {/* Current Location */}
+            {/* --------------------------------------------------------- */}
+            {/* Main Grid */}
+            {/* --------------------------------------------------------- */}
 
             <div className="live-grid">
 
+
+                {/* ----------------------------------------------------- */}
+                {/* Current Location */}
+                {/* ----------------------------------------------------- */}
 
                 <div className="live-card">
 
@@ -470,6 +744,7 @@ const LiveJourney = () => {
 
                         <div className="location-data">
 
+
                             <p>
 
                                 <strong>
@@ -479,8 +754,9 @@ const LiveJourney = () => {
                                 {" "}
 
                                 {
-                                    location.latitude
-                                        .toFixed(6)
+                                    typeof location.latitude === "number"
+                                        ? location.latitude.toFixed(6)
+                                        : "-"
                                 }
 
                             </p>
@@ -495,8 +771,9 @@ const LiveJourney = () => {
                                 {" "}
 
                                 {
-                                    location.longitude
-                                        .toFixed(6)
+                                    typeof location.longitude === "number"
+                                        ? location.longitude.toFixed(6)
+                                        : "-"
                                 }
 
                             </p>
@@ -511,13 +788,15 @@ const LiveJourney = () => {
                                 {" "}
 
                                 {
-                                    location.accuracy
-                                        ?.toFixed(1)
+                                    typeof location.accuracy === "number"
+                                        ? location.accuracy.toFixed(1)
+                                        : "-"
                                 }
 
                                 {" "} meters
 
                             </p>
+
 
                         </div>
 
@@ -534,7 +813,9 @@ const LiveJourney = () => {
                 </div>
 
 
+                {/* ----------------------------------------------------- */}
                 {/* Journey Analysis */}
+                {/* ----------------------------------------------------- */}
 
                 <div className="live-card">
 
@@ -551,6 +832,7 @@ const LiveJourney = () => {
 
                         <div className="location-data">
 
+
                             <p>
 
                                 <strong>
@@ -560,9 +842,16 @@ const LiveJourney = () => {
                                 {" "}
 
                                 {
-                                    trackingData.analysis
-                                        ?.distanceFromDestination
-                                        ?.toFixed(2)
+                                    typeof trackingData
+                                        .analysis
+                                        ?.distanceFromDestination === "number"
+
+                                        ? trackingData
+                                            .analysis
+                                            .distanceFromDestination
+                                            .toFixed(2)
+
+                                        : "-"
                                 }
 
                                 {" "} km
@@ -582,7 +871,9 @@ const LiveJourney = () => {
                                     trackingData
                                         .movementAnalysis
                                         ?.movementDetected
+
                                         ? "Moving"
+
                                         : "Not moving"
                                 }
 
@@ -601,11 +892,14 @@ const LiveJourney = () => {
                                     trackingData
                                         .directionAnalysis
                                         ?.movingTowardDestination
+
                                         ? "Moving toward destination"
+
                                         : "Not moving toward destination"
                                 }
 
                             </p>
+
 
                         </div>
 
@@ -622,7 +916,9 @@ const LiveJourney = () => {
                 </div>
 
 
+                {/* ----------------------------------------------------- */}
                 {/* ETA */}
+                {/* ----------------------------------------------------- */}
 
                 <div className="live-card">
 
@@ -662,37 +958,50 @@ const LiveJourney = () => {
                 </div>
 
 
-                {/* Battery placeholder */}
+                {/* ----------------------------------------------------- */}
+                {/* Battery */}
+                {/* ----------------------------------------------------- */}
 
                 <div className="battery-card">
 
-    <p className="section-label">
-        DEVICE BATTERY
-    </p>
+                    <p className="section-label">
+                        DEVICE BATTERY
+                    </p>
 
-    {battery ? (
 
-        <>
-            <h2>
-                🔋 {battery.level}%
-            </h2>
+                    {battery ? (
 
-            <p>
-                {battery.charging
-                    ? "Charging"
-                    : "Not charging"}
-            </p>
-        </>
+                        <>
 
-    ) : (
+                            <h2>
 
-        <p>
-            Battery information is not available
-        </p>
+                                🔋 {battery.level}%
 
-    )}
+                            </h2>
 
-</div>
+
+                            <p>
+
+                                {battery.charging
+                                    ? "Charging"
+                                    : "Not charging"
+                                }
+
+                            </p>
+
+                        </>
+
+                    ) : (
+
+                        <p>
+
+                            Battery information is not available
+
+                        </p>
+
+                    )}
+
+                </div>
 
 
             </div>
@@ -700,7 +1009,6 @@ const LiveJourney = () => {
         </div>
 
     );
-
 };
 
 
